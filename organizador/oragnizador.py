@@ -4,80 +4,81 @@ import hashlib
 import logging
 from tkinter import messagebox
 
-# Configuración de Logs (para que parezca pro)
-logging.basicConfig(filename='gestion_archivos.log', level=logging.INFO, 
+# Log Configuration (to look professional)
+logging.basicConfig(filename='file_management.log', level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
-MAPA_EXT = {
-    'Documentos': ['.pdf', '.docx', '.txt'],
-    'Imagenes': ['.jpg', '.png', '.gif'],
+EXT_MAP = {
+    'Documents': ['.pdf', '.docx', '.txt'],
+    'Images': ['.jpg', '.png', '.gif'],
     'Software': ['.exe', '.msi', '.iso'],
-    'Comprimidos': ['.zip', '.rar']
+    'Compressed': ['.zip', '.rar']
 }
 
-def calcular_hash(ruta):
-    """Calcula el MD5 de un archivo para verificar si es duplicado."""
+def calculate_hash(path):
+    """Calculates the MD5 of a file to check if it is a duplicate."""
     hasher = hashlib.md5()
-    with open(ruta, 'rb') as f:
+    with open(path, 'rb') as f:
         for chunk in iter(lambda: f.read(4096), b""):
             hasher.update(chunk)
     return hasher.hexdigest()
 
-def procesar_archivos(carpeta_origen):
-    if not os.path.exists(carpeta_origen):
-        return "La ruta no existe."
+def process_files(source_folder):
+    if not os.path.exists(source_folder):
+        return "The path does not exist."
 
-    conteo = 0
-    for archivo in os.listdir(carpeta_origen):
-        ruta_full = os.path.join(carpeta_origen, archivo)
-        
-        if os.path.isdir(ruta_full): continue
+    count = 0
+    for file in os.listdir(source_folder):
+        full_path = os.path.join(source_folder, file)
 
-        nombre, ext = os.path.splitext(archivo)
+        if os.path.isdir(full_path):
+            continue
+
+        name, ext = os.path.splitext(file)
         ext = ext.lower()
 
-        for categoria, extensiones in MAPA_EXT.items():
-            if ext in extensiones:
-                destino_dir = os.path.join(carpeta_origen, categoria)
-                os.makedirs(destino_dir, exist_ok=True)
-                
-                final_path = os.path.join(destino_dir, archivo)
+        for category, extensions in EXT_MAP.items():
+            if ext in extensions:
+                dest_dir = os.path.join(source_folder, category)
+                os.makedirs(dest_dir, exist_ok=True)
 
-                # Control de duplicados por Hash
+                final_path = os.path.join(dest_dir, file)
+
+                # Duplicate control by Hash
                 if os.path.exists(final_path):
-                    if calcular_hash(ruta_full) == calcular_hash(final_path):
-                        os.remove(ruta_full)
-                        logging.info(f"Duplicado borrado: {archivo}")
+                    if calculate_hash(full_path) == calculate_hash(final_path):
+                        os.remove(full_path)
+                        logging.info(f"Duplicate deleted: {file}")
                         break
-                
-                shutil.move(ruta_full, final_path)
-                logging.info(f"Movido: {archivo} -> {categoria}")
-                conteo += 1
-                break
-    return f"Proceso finalizado. Se han movido {conteo} archivos."
 
-import tkinter as tk 
+                shutil.move(full_path, final_path)
+                logging.info(f"Moved: {file} -> {category}")
+                count += 1
+                break
+    return f"Process completed. {count} files have been moved."
+
+import tkinter as tk
 from tkinter import filedialog
 
-def ejecutar_interfaz():
-    root = tk.Tk ()
+def run_interface():
+    root = tk.Tk()
     root.title("ASIR File Sentinel v1.0")
     root.geometry("400x200")
 
-    label = tk.Label(root, text="Organizador Automático de Archivos", font=("Arial", 12, "bold"))
+    label = tk.Label(root, text="Automatic File Organizer", font=("Arial", 12, "bold"))
     label.pack(pady=20)
 
-    def seleccionar_y_correr():
+    def select_and_run():
         folder = filedialog.askdirectory()
         if folder:
-            resultado = procesar_archivos(folder)
-            messagebox.showinfo("Estado", resultado)
+            result = process_files(folder)
+            messagebox.showinfo("Status", result)
 
-    btn = tk.Button(root, text="Seleccionar Carpeta y Organizar", 
-                    command=seleccionar_y_correr, bg="#2c3e50", fg="white", pady=10)
+    btn = tk.Button(root, text="Select Folder and Organize",
+                    command=select_and_run, bg="#2c3e50", fg="white", pady=10)
     btn.pack(expand=True)
 
     root.mainloop()
 
 if __name__ == "__main__":
-    ejecutar_interfaz()
+    run_interface()
