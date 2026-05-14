@@ -5,8 +5,7 @@ import logging
 from tkinter import messagebox
 
 # Log Configuration (to look professional)
-logging.basicConfig(filename='file_management.log', level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 EXT_MAP = {
     'Documents': ['.pdf', '.docx', '.txt'],
@@ -82,3 +81,4 @@ def run_interface():
 
 if __name__ == "__main__":
     run_interface()
+
