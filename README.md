@@ -1,4 +1,4 @@
-#Simply a file organizer. It stores it in folders. 
+Simply a file organizer. It stores it in folders. 
 
 --Start--
 
